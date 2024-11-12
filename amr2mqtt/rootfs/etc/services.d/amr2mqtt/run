@@ -59,6 +59,14 @@ if bashio::config.exists 'rtlamr_symbol_length'; then
     export "SYMBOL_LENGTH=$(bashio::config 'rtlamr_symbol_length')"
 fi
 
+if bashio::config.exists 'rtl_tcp_host'; then
+  export "RTL_TCP_HOST=$(bashio::config 'rtl_tcp_host')"
+fi
+
+if bashio::config.exists 'rtl_tcp_port'; then
+  export "RTL_TCP_PORT=$(bashio::config 'rtl_tcp_port')"
+fi
+
 # --- SET LOG LEVEL ---
 case "$(bashio::config 'log_level')" in \
     trace)      ;& \
@@ -72,8 +80,10 @@ esac;
 export LOG_LEVEL="${log_level}"
 bashio::log.info "Log level set to ${log_level}"
 
-bashio::log.info 'Waiting for rtl_tcp...'
-bashio::net.wait_for 1234
+if bashio::config.is_empty 'rtl_tcp_host'; then
+  bashio::log.info 'Waiting for rtl_tcp...'
+  bashio::net.wait_for 1234
+fi
 
 bashio::log.info 'Handing over control to AMR2MQTT...'
 exec s6-setuidgid abc \
